@@ -1,6 +1,6 @@
 # MealMuse.app
 
-🍔🍲🍚🍌
+🍲🍚
 
 MealMuse is an Android app built with Kotlin and Android Studio, using Dagger for dependency injection and ROOM database for data storage.
 
