@@ -1,4 +1,4 @@
-name: Meal Muse Cooking...
+name: MealMuse Cooking
 on:
   pull_request:
   push:
@@ -7,6 +7,9 @@ on:
 jobs:
   code_quality_checks_and_tests:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x]
     steps:
       - name: Checkout 🛍️🛒
         uses: actions/checkout@v2
