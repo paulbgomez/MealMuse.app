@@ -24,10 +24,19 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 30
-          profile: Nexus 5X
-          arch: x86
+          target: default
+          arch: x86_64
+          profile: pixel
+          heap-size: 2048
+          cores: 2
+          sdcard-path-or-size: 512M
+          script: |
+            # start the emulator and wait for it to finish booting
+            emulator @default -no-window -no-audio -no-boot-anim -no-accel -gpu off -verbose -engine classic &
+            android-wait-for-emulator
           sdk-path: /opt/android/sdk
           jdk-path: /usr/lib/jvm/java-11-openjdk-amd64
+          - run: adb devices
       - name: Build and test app 🚀
         run: |
           ./gradlew assembleDebug testDebug
