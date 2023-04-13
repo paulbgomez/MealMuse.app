@@ -36,7 +36,7 @@ jobs:
             android-wait-for-emulator
           sdk-path: /opt/android/sdk
           jdk-path: /usr/lib/jvm/java-11-openjdk-amd64
-          - run: adb devices
+          run: adb devices
       - name: Build and test app 🚀
         run: |
           ./gradlew assembleDebug testDebug
