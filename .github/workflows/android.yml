@@ -1,35 +1,49 @@
-name: Code Quality Checks and Tests for MealMuse
+name: MealMuse Cooking
+
 on:
   pull_request:
   push:
     branches:
       - main
+
 jobs:
   code_quality_checks_and_tests:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.x]
+
     steps:
       - name: Checkout 🛍️🛒
         uses: actions/checkout@v2
+
       - name: Setup JDK 🌟
         uses: actions/setup-java@v2
         with:
           java-version: 11
           distribution: 'temurin'
+
       - name: Install ktlint 🔧
         run: |
           curl -sSLO https://github.com/pinterest/ktlint/releases/download/0.42.1/ktlint && chmod a+x ktlint && sudo mv ktlint /usr/local/bin/
+
       - name: Run ktlint 🚦
         run: ktlint -F "app/**/*.kt"
+
       - name: Build and test app 🚀
         run: |
           ./gradlew assembleDebug testDebug
+
       - name: Report test results 📊
         uses: mikepenz/action-junit-report@v2
         with:
           report_paths: '**/test-results/**/*.xml'
+
       - name: Display success message 🎉
         if: ${{ job.status == 'success' }}
         run: echo "🎉 Congratulations, ${{ github.actor }}! All checks passed. 🚀"
+
       - name: Display failure message 💥
         if: ${{ job.status != 'success' }}
         run: echo "💥 Sorry, ${{ github.actor }}. There were issues with your code. 😞"
