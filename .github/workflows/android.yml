@@ -40,10 +40,3 @@ jobs:
       - name: Display failure message 💥
         if: ${{ job.status != 'success' }}
         run: echo "💥 Sorry, ${{ github.actor }}. There were issues with your code. 😞"
-      - name: Label pull request 🏷️
-        uses: anothrNick/github-labeler-action@v1.0.0
-        if: ${{ github.event_name == 'pull_request' }}
-        with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          labels: |
-            Code Quality Check: ${{ job.status == 'success' && '✅ Pass' || '❌ Fail' }}, Test: ${{ job.status == 'success' && '✅ Pass' || '❌ Fail' }}
