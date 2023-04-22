@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import com.mealmuse.R
 
+
 class RecipesFragment : Fragment() {
 
     override fun onCreateView(
