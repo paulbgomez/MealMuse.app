@@ -1,4 +1,4 @@
-package com.mealmuse
+package com.mealmuse.data.network
 
 import com.mealmuse.models.FoodRecipe
 import retrofit2.http.GET
