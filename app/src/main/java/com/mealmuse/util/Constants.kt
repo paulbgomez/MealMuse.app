@@ -1,4 +1,4 @@
-package com.mealmuse
+package com.mealmuse.util
 
 class Constants {
 
