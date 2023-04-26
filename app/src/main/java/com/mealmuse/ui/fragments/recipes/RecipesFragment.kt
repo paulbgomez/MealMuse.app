@@ -9,39 +9,42 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.mealmuse.viewmodels.MainViewModel
-import com.mealmuse.R
 import com.mealmuse.adapters.RecipesAdapter
+import com.mealmuse.databinding.FragmentRecipesBinding
 import com.mealmuse.util.NetworkResult
 import com.mealmuse.viewmodels.RecipesViewModel
-import kotlinx.android.synthetic.main.fragment_recipes.view.*
 
 
 class RecipesFragment : Fragment() {
 
-    private lateinit var mView: View
+
+
+    private var _binding: FragmentRecipesBinding? = null
+    private val binding get() = _binding!!
+
     private lateinit var mainViewModel: MainViewModel
     private lateinit var recipesViewModel: RecipesViewModel
     private val mAdapter by lazy { RecipesAdapter() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        mainViewModel = ViewModelProvider(requireActivity()).get(MainViewModel::class.java)
-        recipesViewModel = ViewModelProvider(requireActivity()).get(RecipesViewModel::class.java)
+        mainViewModel = ViewModelProvider(requireActivity())[MainViewModel::class.java]
+        recipesViewModel = ViewModelProvider(requireActivity())[RecipesViewModel::class.java]
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         // Inflate the layout for this fragment
-        mView = inflater.inflate(R.layout.fragment_recipes, container, false)
+        _binding = FragmentRecipesBinding.inflate(inflater, container, false)
 
         //So whenever our application starts, our cycle of you will set up and this short treatment effect will
         //appear.
         setupRecyclerView()
         requestApiData()
 
-        return mView
+        return binding.root
     }
 
     private fun requestApiData() {
@@ -70,22 +73,22 @@ class RecipesFragment : Fragment() {
 
 
     private fun setupRecyclerView() {
-        mView.recyclerview.adapter = mAdapter
-        mView.recyclerview.layoutManager = LinearLayoutManager(requireContext())
+        binding.recyclerview.adapter = mAdapter
+        binding.recyclerview.layoutManager = LinearLayoutManager(requireContext())
         showShimmerEffect()
     }
 
     //The showShimmerEffect() function uses the showShimmer() method of the list view (mView.recyclerview)
     // to show the shimmer effect.
     private fun showShimmerEffect() {
-        mView.recyclerview.showShimmer()
+        binding.recyclerview.visibility = View.GONE
     }
 
     //The hideShimmerEffect() function uses the hideShimmer() method of the list
     // view to hide the shimmer effect once the list items have
     //    // been loaded and are ready to be displayed.
     private fun hideShimmerEffect() {
-        mView.recyclerview.hideShimmer()
+        binding.recyclerview.visibility = View.VISIBLE
     }
 
 }

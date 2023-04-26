@@ -9,7 +9,8 @@ import javax.inject.Inject
  */
 @ActivityRetainedScoped
 class Repository @Inject constructor(
-    remoteDataSource: RemoteDataSource
+    remoteDataSource: RemoteDataSource,
+
 ){
     val remote = remoteDataSource
 }
