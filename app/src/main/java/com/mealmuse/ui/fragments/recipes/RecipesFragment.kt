@@ -13,11 +13,12 @@ import com.mealmuse.adapters.RecipesAdapter
 import com.mealmuse.databinding.FragmentRecipesBinding
 import com.mealmuse.util.NetworkResult
 import com.mealmuse.viewmodels.RecipesViewModel
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 
+@AndroidEntryPoint
 class RecipesFragment : Fragment() {
-
-
 
     private var _binding: FragmentRecipesBinding? = null
     private val binding get() = _binding!!
