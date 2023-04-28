@@ -1,4 +1,4 @@
-package com.mealmuse
+package com.mealmuse.viewmodels
 
 import android.app.Application
 import android.content.Context
