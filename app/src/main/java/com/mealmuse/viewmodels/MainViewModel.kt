@@ -4,13 +4,13 @@ import android.app.Application
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.mealmuse.data.Repository
+import com.mealmuse.data.database.RecipesEntity
 import com.mealmuse.models.FoodRecipe
 import com.mealmuse.util.NetworkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import retrofit2.Response
 import javax.inject.Inject
@@ -22,6 +22,22 @@ class MainViewModel @Inject constructor(
     application: Application
 ): AndroidViewModel(application) {
 
+    /** ROOM DATABASE**/
+
+    //Define un objeto LiveData que fluirá una lista de entidades de recetas obtenidas de la base de datos.
+    // Utiliza la función readDatabase() de la clase LocalDataSource para acceder a los datos locales.
+    // La función asLiveData() se utiliza para convertir el objeto Flow retornado por readDatabase() a un objeto LiveData.
+    val readRecipes: LiveData<List<RecipesEntity>> = repository.local.readDatabase().asLiveData()
+
+    //Utiliza la función insertRecipes() de la clase LocalDataSource
+    // para insertar una entidad de recetas en la base de datos. Esta función se ejecuta en
+    // un viewModelScope y utiliza el Dispatchers.IO para realizar la operación de inserción en un hilo de fondo.
+    private fun insertRecipes(recipesEntity: RecipesEntity) =
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.local.insertRecipes(recipesEntity)
+        }
+
+    /**RETROFIT**/
     // Se declara una variable de LiveData llamada "recipesResponse" que contendrá los datos de la respuesta de la API
     var recipesResponse: MutableLiveData<NetworkResult<FoodRecipe>> = MutableLiveData()
 
@@ -34,20 +50,30 @@ class MainViewModel @Inject constructor(
     private suspend fun getRecipesSafeCall(queries: Map<String, String>) {
         recipesResponse.value = NetworkResult.Loading()
         // Se comprueba si el dispositivo tiene conexión a internet utilizando la función "hasInternetConnection"
-        if(hasInternetConnection()) {
-            // Si hay conexión a internet, se realiza una solicitud GET a la API
+        if (hasInternetConnection()) {
             try {
-                val response = repository.remote.getRecipes(queries) // Se llama a la función "getRecipes" de la clase Repository para obtener los datos de la receta
+                val response = repository.remote.getRecipes(queries)// Se llama a la función "getRecipes" de la clase Repository para obtener los datos de la receta
                 // Se llama a la función "handleFoodRecipesResponse" para procesar la respuesta de la API y se establece el valor de "recipesResponse" con el resultado
                 recipesResponse.value = handleFoodRecipesResponse(response)
+
+                val foodRecipe = recipesResponse.value!!.data
+                if(foodRecipe != null) {
+                    offlineCacheRecipes(foodRecipe)
+                }
             } catch (e: Exception) {
+                recipesResponse.value = NetworkResult.Error("Recipes not found.")
                 // Si se produce un error durante la llamada a la API, se establece un valor de error en "recipesResponse"
-                recipesResponse.value = NetworkResult.Error("Recetas no encontradas")
             }
-        } else {
-            // Si no hay conexión a internet, se establece un valor de error en "recipesResponse"
-            recipesResponse.value = NetworkResult.Error("No hay conexión a internet")
+        } else { // Si no hay conexión a internet, se establece un valor de error en "recipesResponse"
+            recipesResponse.value = NetworkResult.Error("No Internet Connection.")
         }
+    }
+
+    //Es una función privada que se utiliza para almacenar en caché una receta (FoodRecipe) en la base de datos local.
+    //Actúa como una capa intermedia entre la capa de presentación de la aplicación y la capa de datos, permitiendo que la aplicación almacene datos en caché para un acceso rápido y sin conexión.
+    private fun offlineCacheRecipes(foodRecipe: FoodRecipe) {
+        val recipesEntity = RecipesEntity(foodRecipe)
+        insertRecipes(recipesEntity)
     }
 
     // La función "handleFoodRecipesResponse" se utiliza para procesar la respuesta de la API y devolver un valor de éxito o error
@@ -96,3 +122,8 @@ class MainViewModel @Inject constructor(
         }
     }
 }
+
+
+
+
+
