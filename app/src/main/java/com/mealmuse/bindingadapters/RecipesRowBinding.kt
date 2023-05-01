@@ -22,6 +22,7 @@ class RecipesRowBinding {
             //of six hundred milliseconds and we will see that effect when we actually start fetching some API data.
             imageView.load(imageUrl) {
                 crossfade(600)
+                error(R.drawable.ic_error_placeholder)
             }
         }
 
