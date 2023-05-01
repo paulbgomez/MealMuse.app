@@ -9,7 +9,11 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.Navigation.findNavController
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.mealmuse.R
 import com.mealmuse.viewmodels.MainViewModel
 import com.mealmuse.adapters.RecipesAdapter
 import com.mealmuse.databinding.FragmentRecipesBinding
@@ -23,6 +27,8 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class RecipesFragment : Fragment() {
+
+    private val args by navArgs<RecipesFragmentArgs>()
 
     private var _binding: FragmentRecipesBinding? = null
     private val binding get() = _binding!!
@@ -50,6 +56,10 @@ class RecipesFragment : Fragment() {
         setupRecyclerView()
         readDatabase()
 
+        binding.recipesFab.setOnClickListener {
+            findNavController().navigate(R.id.action_recipesFragment_to_recipesBottomSheet)
+        }
+
         return binding.root
     }
 
@@ -65,7 +75,7 @@ class RecipesFragment : Fragment() {
             // se llama a la función readRecipes del ViewModel (mainViewModel) para obtener la lista de entidades de recetas almacenadas en la base de datos. La función
             // observe se utiliza para observar los cambios en el objeto LiveData devuelto por la función readRecipes.
             mainViewModel.readRecipes.observeOnce(viewLifecycleOwner, { database ->
-                if (database.isNotEmpty()) {
+                if (database.isNotEmpty() && !args.backFromBottomSheet) {
                     Log.d("RecipesFragment", "readDatabase called!")
                     //Cuando se detectan cambios en la lista de entidades de recetas (database), se verifica si la lista no está vacía y se llama a la función setData del adaptador (mAdapter) para establecer
                     // los datos en la lista de recetas que se mostrará en la interfaz de usuario.
