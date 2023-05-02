@@ -17,14 +17,17 @@ import com.mealmuse.R
 import com.mealmuse.viewmodels.MainViewModel
 import com.mealmuse.adapters.RecipesAdapter
 import com.mealmuse.databinding.FragmentRecipesBinding
+import com.mealmuse.util.NetworkListener
 import com.mealmuse.util.NetworkResult
 import com.mealmuse.util.observeOnce
 import com.mealmuse.viewmodels.RecipesViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 
+@ExperimentalCoroutinesApi
 @AndroidEntryPoint
 class RecipesFragment : Fragment() {
 
@@ -36,6 +39,8 @@ class RecipesFragment : Fragment() {
     private lateinit var mainViewModel: MainViewModel
     private lateinit var recipesViewModel: RecipesViewModel
     private val mAdapter by lazy { RecipesAdapter() }
+
+    private lateinit var networkListener: NetworkListener
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,10 +59,30 @@ class RecipesFragment : Fragment() {
         //So whenever our application starts, our cycle of you will set up and this short treatment effect will
         //appear.
         setupRecyclerView()
-        readDatabase()
 
+        //este código permite observar los cambios en el valor de disponibilidad de red (readBackOnline) del ViewModel y actualizar la propiedad backOnline del ViewModel en consecuencia. Esto es útil para asegurarse de que la aplicación tenga la información más actualizada sobre la disponibilidad de red en todo momento.
+        recipesViewModel.readBackOnline.observe(viewLifecycleOwner, {
+            recipesViewModel.backOnline = it
+        })
+
+        //el código está iniciando un observador de la disponibilidad de red utilizando NetworkListener y actualizando el estado de la red en el ViewModel cada vez que se produce un cambio en la disponibilidad de la red. Además, se está leyendo la base de datos cada vez que cambia el estado de la red.
+       lifecycleScope.launch {
+           networkListener = NetworkListener()
+           networkListener.checkNetworkAvailability(requireContext()).collect { status ->
+               Log.d("NetworkListener", status.toString())
+               recipesViewModel.networkStatus = status
+               recipesViewModel.showNetworkStatus()
+               readDatabase()
+           }
+       }
+
+        //este código está permitiendo al usuario acceder a un fragmento de la aplicación (recipesBottomSheet) si la red está disponible. Si no lo está, se muestra una alerta al usuario a través del método showNetworkStatus().
         binding.recipesFab.setOnClickListener {
-            findNavController().navigate(R.id.action_recipesFragment_to_recipesBottomSheet)
+            if (recipesViewModel.networkStatus) {
+                findNavController().navigate(R.id.action_recipesFragment_to_recipesBottomSheet)
+            } else {
+                recipesViewModel.showNetworkStatus()
+            }
         }
 
         return binding.root

@@ -1,7 +1,9 @@
 package com.mealmuse.viewmodels
 
 import android.app.Application
+import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.mealmuse.data.DataStoreRepository
 import com.mealmuse.util.Constants.Companion.API_KEY
@@ -28,7 +30,11 @@ class RecipesViewModel @Inject constructor (
     private var mealType = DEFAULT_MEAL_TYPE
     private var dietType = DEFAULT_DIET_TYPE
 
+    var networkStatus = false
+    var backOnline = false
+
     val readMealAndDietType = dataStoreRepository.readMealAndDietType
+    val readBackOnline = dataStoreRepository.readBackOnline.asLiveData()
 
     //se utiliza en la capa ViewModel de la arquitectura de la aplicación y se encarga de guardar los tipos de comida
     // y dieta seleccionados por el usuario en el DataStore de la aplicación.
@@ -38,6 +44,11 @@ class RecipesViewModel @Inject constructor (
            //para acceder al DataStore y llamar a la función saveMealAndDietType definida en dicha clase. Esta función a su vez utiliza la instancia de
             // DataStore para editar los valores de preferencia correspondientes.
             dataStoreRepository.saveMealAndDietType(mealType, mealTypeId, dietType, dietTypeId)
+        }
+
+    private fun saveBackOnline(backOnline: Boolean) =
+        viewModelScope.launch(Dispatchers.IO) {
+            dataStoreRepository.saveBackOnline(backOnline)
         }
 
 
@@ -63,5 +74,19 @@ class RecipesViewModel @Inject constructor (
 
         return queries
     }
+
+    fun showNetworkStatus() {
+        if (!networkStatus) {
+            Toast.makeText(getApplication(), "No Internet Connection.", Toast.LENGTH_SHORT).show()
+            saveBackOnline(true)
+        } else if (networkStatus) {
+            if (backOnline) {
+                Toast.makeText(getApplication(), "We're back online.", Toast.LENGTH_SHORT).show()
+                saveBackOnline(false)
+            }
+        }
+    }
+
+
 
 }

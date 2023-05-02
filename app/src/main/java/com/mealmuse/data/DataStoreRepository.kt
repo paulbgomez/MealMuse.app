@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
 import com.mealmuse.util.Constants.Companion.DEFAULT_DIET_TYPE
 import com.mealmuse.util.Constants.Companion.DEFAULT_MEAL_TYPE
+import com.mealmuse.util.Constants.Companion.PREFERENCES_BACK_ONLINE
 import com.mealmuse.util.Constants.Companion.PREFERENCES_DIET_TYPE
 import com.mealmuse.util.Constants.Companion.PREFERENCES_DIET_TYPE_ID
 import com.mealmuse.util.Constants.Companion.PREFERENCES_MEAL_TYPE
@@ -37,6 +38,7 @@ class DataStoreRepository @Inject constructor(@ApplicationContext private val co
         val selectedMealTypeId = intPreferencesKey(PREFERENCES_MEAL_TYPE_ID)
         val selectedDietType = stringPreferencesKey(PREFERENCES_DIET_TYPE)
         val selectedDietTypeId = intPreferencesKey(PREFERENCES_DIET_TYPE_ID)
+        val backOnline = booleanPreferencesKey(PREFERENCES_BACK_ONLINE)
     }
 
     //Creamos una instancia de la clase DataStore utilizando una extensión de la clase Context llamada dataStore.
@@ -58,6 +60,15 @@ class DataStoreRepository @Inject constructor(@ApplicationContext private val co
             preferences[PreferenceKeys.selectedDietTypeId] = dietTypeId
         }
     }
+
+    //la función saveBackOnline() se utiliza para guardar el estado de disponibilidad de red
+    // de la aplicación (backOnline) en el almacenamiento de preferencias utilizando dataStore. Al utilizar la palabra clave suspend, se indica que esta función se puede llamar desde un contexto de suspensión, como una corutina.
+    suspend fun saveBackOnline(backOnline: Boolean) {
+        dataStore.edit { preferences ->
+            preferences[PreferenceKeys.backOnline] = backOnline
+        }
+    }
+
 
     //Se utiliza para recuperar los tipos de comida y dieta seleccionados por el usuario del DataStore de la aplicación.
     val readMealAndDietType: Flow<MealAndDietType> = dataStore.data
@@ -82,6 +93,20 @@ class DataStoreRepository @Inject constructor(@ApplicationContext private val co
                 selectedDietType,
                 selectedDietTypeId
             )
+        }
+
+    //la variable readBackOnline es un Flow que se utiliza para leer el estado de disponibilidad de red guardado en dataStore. Si no se ha guardado ningún valor, se devuelve false.
+    val readBackOnline: Flow<Boolean> = dataStore.data
+        .catch { exception ->
+            if (exception is IOException) {
+                emit(emptyPreferences())
+            } else {
+                throw exception
+            }
+        }
+        .map {preferences ->
+            val backOnline = preferences[PreferenceKeys.backOnline] ?: false
+            backOnline
         }
 
 }
