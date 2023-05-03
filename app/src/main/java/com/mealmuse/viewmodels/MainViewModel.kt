@@ -40,10 +40,16 @@ class MainViewModel @Inject constructor(
     /**RETROFIT**/
     // Se declara una variable de LiveData llamada "recipesResponse" que contendrá los datos de la respuesta de la API
     var recipesResponse: MutableLiveData<NetworkResult<FoodRecipe>> = MutableLiveData()
+    //esta variable se utiliza para almacenar y emitir los resultados de la búsqueda de recetas de alimentos en la aplicación, con información adicional de si la búsqueda tuvo éxito o no, errores que puedan haber ocurrido y el estado actual de la búsqueda
+    var searchedRecipesResponse: MutableLiveData<NetworkResult<FoodRecipe>> = MutableLiveData()
 
     // La función "getRecipes" se utiliza para iniciar una llamada a la API y obtener los datos de la receta
     fun getRecipes(queries: Map<String, String>) = viewModelScope.launch {
         getRecipesSafeCall(queries) // Se llama a la función "getRecipesSafeCall" para realizar la llamada segura a la API
+    }
+
+    fun searchRecipes(searchQuery: Map<String, String>) = viewModelScope.launch {
+        searchRecipesSafeCall(searchQuery)
     }
 
     // La función "getRecipesSafeCall" se utiliza para realizar una llamada segura a la API y procesar la respuesta
@@ -66,6 +72,21 @@ class MainViewModel @Inject constructor(
             }
         } else { // Si no hay conexión a internet, se establece un valor de error en "recipesResponse"
             recipesResponse.value = NetworkResult.Error("No Internet Connection.")
+        }
+    }
+
+    //este código asegura que se realice una búsqueda segura de recetas de alimentos, maneja los diferentes escenarios de resultados de la API y actualiza searchedRecipesResponse con información adicional de si la búsqueda tuvo éxito o no, errores que puedan haber ocurrido y el estado actual de la búsqueda.
+    private suspend fun searchRecipesSafeCall(searchQuery: Map<String, String>) {
+        searchedRecipesResponse.value = NetworkResult.Loading()
+        if (hasInternetConnection()) {
+            try {
+                val response = repository.remote.searchRecipes(searchQuery)
+                searchedRecipesResponse.value = handleFoodRecipesResponse(response)
+            } catch (e: Exception) {
+                searchedRecipesResponse.value = NetworkResult.Error("Recipes not found.")
+            }
+        } else {
+            searchedRecipesResponse.value = NetworkResult.Error("No Internet Connection.")
         }
     }
 

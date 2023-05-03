@@ -2,11 +2,13 @@ package com.mealmuse.ui.fragments.recipes
 
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Toast
+import androidx.appcompat.widget.SearchView
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.Navigation.findNavController
@@ -29,7 +31,7 @@ import kotlinx.coroutines.launch
 
 @ExperimentalCoroutinesApi
 @AndroidEntryPoint
-class RecipesFragment : Fragment() {
+class RecipesFragment : Fragment(), SearchView.OnQueryTextListener {
 
     private val args by navArgs<RecipesFragmentArgs>()
 
@@ -56,6 +58,25 @@ class RecipesFragment : Fragment() {
         _binding = FragmentRecipesBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = this
         binding.mainViewModel = mainViewModel
+
+        //está definiendo un menú en una actividad o fragmento y proporcionando una implementación de la interfaz MenuProvider para manejar la creación y selección de elementos del menú.
+        val menuHost: MenuHost = requireActivity()
+        menuHost.addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.recipes_menu, menu)
+
+                val search = menu.findItem(R.id.menu_search)
+                val searchView = search.actionView as? SearchView
+                searchView?.isSubmitButtonEnabled = true
+                searchView?.setOnQueryTextListener(this@RecipesFragment)
+            }
+
+            override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+                return true
+            }
+        }, viewLifecycleOwner, Lifecycle.State.RESUMED)
+
+
         //So whenever our application starts, our cycle of you will set up and this short treatment effect will
         //appear.
         setupRecyclerView()
@@ -88,11 +109,26 @@ class RecipesFragment : Fragment() {
         return binding.root
     }
 
+    //este código es parte del proceso de configuración de RecyclerView y normalmente se llama durante la inicialización de un fragmento o actividad que muestra una lista de elementos
     private fun setupRecyclerView() {
         binding.recyclerview.adapter = mAdapter
         binding.recyclerview.layoutManager = LinearLayoutManager(requireContext())
         showShimmerEffect()
     }
+
+    //el método devuelve true para indicar que la consulta de búsqueda ha sido manejada.
+    override fun onQueryTextSubmit(query: String?): Boolean {
+        if(query != null) {
+            searchApiData(query)
+        }
+        return true
+    }
+
+    override fun onQueryTextChange(p0: String?): Boolean {
+        return true
+    }
+
+
 
     //La función readDatabase() se utiliza para leer datos de la base de datos local y mostrarlos en la interfaz de usuario de la aplicación.
     private fun readDatabase() {
@@ -139,6 +175,34 @@ class RecipesFragment : Fragment() {
         })
     }
 
+
+    private fun searchApiData(searchQuery: String) {
+        showShimmerEffect()
+        mainViewModel.searchRecipes(recipesViewModel.applySearchQuery(searchQuery))
+        mainViewModel.searchedRecipesResponse.observe(viewLifecycleOwner, { response ->
+            when (response) {
+                is NetworkResult.Success -> {
+                    hideShimmerEffect()
+                    val foodRecipe = response.data
+                    foodRecipe?.let { mAdapter.setData(it) }
+                }
+                is NetworkResult.Error -> {
+                    hideShimmerEffect()
+                    loadDataFromCache()
+                    Toast.makeText(
+                        requireContext(),
+                        response.message.toString(),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                is NetworkResult.Loading -> {
+                    showShimmerEffect()
+                }
+            }
+        })
+    }
+
+
     //La función loadDataFromCache() se utiliza para cargar datos de la base de datos local y mostrarlos en la interfaz de usuario de la aplicación.
     private fun loadDataFromCache() {
         lifecycleScope.launch {
@@ -149,7 +213,6 @@ class RecipesFragment : Fragment() {
             })
         }
     }
-
 
     //The showShimmerEffect() function uses the showShimmer() method of the list view (mView.recyclerview)
     // to show the shimmer effect.
