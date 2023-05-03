@@ -18,4 +18,9 @@ class RemoteDataSource @Inject constructor(
     suspend fun getRecipes(queries: Map<String, String>): Response<FoodRecipe> {
         return foodRecipesApi.getRecipes(queries)
     }
+
+    //este código permite buscar recetas de alimentos utilizando la API complexSearch y devuelve los resultados filtrados según las consultas proporcionadas en el mapa de searchQuery.
+    suspend fun searchRecipes(searchQuery: Map<String, String>): Response<FoodRecipe> {
+        return foodRecipesApi.searchRecipes(searchQuery)
+    }
 }
