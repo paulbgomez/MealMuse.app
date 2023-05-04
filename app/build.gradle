@@ -117,6 +117,8 @@ dependencies {
     // Jsoup
     implementation 'org.jsoup:jsoup:1.13.1'
 
+    // Pager
+    implementation "androidx.viewpager2:viewpager2:1.0.0"
 
     //Binding
    // kapt "com.android.databinding:compiler:3.2.0-alpha10"

@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.mealmuse"
-    >
+    package="com.mealmuse">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -16,12 +15,21 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MealMuse"
-        tools:targetApi="33"
-        >
-        <activity android:name=".ui.MainActivity"
-            android:exported="true"
-            android:theme="@style/Theme.MealMuse"
+        tools:targetApi="33">
+        <activity
+            android:name=".ui.DetailsActivity"
+            android:label="Details"
+            android:exported="false"
+            android:theme="@style/DetailsActivityStyle"
             >
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
+            android:name=".ui.MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.MealMuse">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
