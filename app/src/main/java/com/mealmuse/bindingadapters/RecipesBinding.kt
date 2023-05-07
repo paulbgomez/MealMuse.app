@@ -4,7 +4,7 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
-import com.mealmuse.data.database.RecipesEntity
+import com.mealmuse.data.database.entities.RecipesEntity
 import com.mealmuse.models.FoodRecipe
 import com.mealmuse.util.NetworkResult
 

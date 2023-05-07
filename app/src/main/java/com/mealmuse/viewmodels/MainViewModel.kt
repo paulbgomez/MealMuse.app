@@ -6,7 +6,8 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import androidx.lifecycle.*
 import com.mealmuse.data.Repository
-import com.mealmuse.data.database.RecipesEntity
+import com.mealmuse.data.database.entities.FavoritesEntity
+import com.mealmuse.data.database.entities.RecipesEntity
 import com.mealmuse.models.FoodRecipe
 import com.mealmuse.util.NetworkResult
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,7 +28,8 @@ class MainViewModel @Inject constructor(
     //Define un objeto LiveData que fluirá una lista de entidades de recetas obtenidas de la base de datos.
     // Utiliza la función readDatabase() de la clase LocalDataSource para acceder a los datos locales.
     // La función asLiveData() se utiliza para convertir el objeto Flow retornado por readDatabase() a un objeto LiveData.
-    val readRecipes: LiveData<List<RecipesEntity>> = repository.local.readDatabase().asLiveData()
+    val readRecipes: LiveData<List<RecipesEntity>> = repository.local.readRecipes().asLiveData()
+    val readFavoriteRecipes: LiveData<List<FavoritesEntity>> = repository.local.readFavoriteRecipes().asLiveData()
 
     //Utiliza la función insertRecipes() de la clase LocalDataSource
     // para insertar una entidad de recetas en la base de datos. Esta función se ejecuta en
@@ -35,6 +37,27 @@ class MainViewModel @Inject constructor(
     private fun insertRecipes(recipesEntity: RecipesEntity) =
         viewModelScope.launch(Dispatchers.IO) {
             repository.local.insertRecipes(recipesEntity)
+        }
+
+    // Esta función utiliza el objeto FavoritesEntity para insertar una receta favorita en la base de datos local.
+    // Utiliza corutinas para ejecutar esta tarea en un subproceso de E/S.
+    fun insertFavoriteRecipe(favoritesEntity: FavoritesEntity) =
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.local.insertFavoriteRecipes(favoritesEntity)
+        }
+
+    // Esta función utiliza el objeto FavoritesEntity para eliminar una receta favorita de la base de datos local.
+    // Utiliza corutinas para ejecutar esta tarea en un subproceso de E/S.
+    fun deleteFavoriteRecipe(favoritesEntity: FavoritesEntity) =
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.local.deleteFavoriteRecipe(favoritesEntity)
+        }
+
+    // Esta función elimina todas las recetas favoritas de la base de datos local.
+    // Utiliza corutinas para ejecutar esta tarea en un subproceso de E/S.
+    fun deleteAllFavoriteRecipes() =
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.local.deleteAllFavoriteRecipes()
         }
 
     /**RETROFIT**/
