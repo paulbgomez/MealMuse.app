@@ -1,4 +1,4 @@
-package com.mealmuse.data.database
+package com.mealmuse.data.database.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
