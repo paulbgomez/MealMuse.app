@@ -6,6 +6,7 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import androidx.lifecycle.*
 import com.mealmuse.data.Repository
+import com.mealmuse.data.database.RecipesDatabase
 import com.mealmuse.data.database.entities.FavoritesEntity
 import com.mealmuse.data.database.entities.RecipesEntity
 import com.mealmuse.models.FoodRecipe
