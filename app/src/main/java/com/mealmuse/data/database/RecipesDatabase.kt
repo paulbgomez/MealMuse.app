@@ -4,11 +4,12 @@ package com.mealmuse.data.database
 import android.content.Context
 import androidx.room.*
 import com.mealmuse.data.database.entities.FavoritesEntity
+import com.mealmuse.data.database.entities.FoodJokeEntity
 import com.mealmuse.data.database.entities.RecipesEntity
 
 @Database(
-    entities = [RecipesEntity::class, FavoritesEntity::class],
-    version = 2,
+    entities = [RecipesEntity::class, FavoritesEntity::class, FoodJokeEntity::class],
+    version = 3,
     exportSchema = false,
 )
 @TypeConverters(RecipesTypeConverter::class)

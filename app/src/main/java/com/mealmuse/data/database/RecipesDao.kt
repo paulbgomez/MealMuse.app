@@ -2,6 +2,7 @@ package com.mealmuse.data.database
 
 import androidx.room.*
 import com.mealmuse.data.database.entities.FavoritesEntity
+import com.mealmuse.data.database.entities.FoodJokeEntity
 import com.mealmuse.data.database.entities.RecipesEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -18,6 +19,9 @@ interface RecipesDao {
     @Query("SELECT * FROM recipes_table ORDER BY id ASC")
     fun readRecipes(): Flow<List<RecipesEntity>>
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertFoodJoke(foodJokeEntity: FoodJokeEntity)
+
     // Inserta una receta favorita en la entidad FavoritesEntity
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertFavoriteRecipe(favoritesEntity: FavoritesEntity)
@@ -26,6 +30,9 @@ interface RecipesDao {
     // Utiliza "Flow" para mandar las recetas favoritas hacia abajo de la lista generada
     @Query("SELECT * FROM favorite_recipes_table ORDER BY id ASC")
     fun readFavoriteRecipes(): Flow<List<FavoritesEntity>>
+
+    @Query("SELECT * FROM food_joke_table ORDER BY id ASC")
+    fun readFoodJoke(): Flow<List<FoodJokeEntity>>
 
     // Elimina una receta favorita de la entidad FavoritesEntity
     @Delete

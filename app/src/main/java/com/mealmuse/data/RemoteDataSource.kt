@@ -1,6 +1,7 @@
 package com.mealmuse.data
 
 import com.mealmuse.data.network.FoodRecipesApi
+import com.mealmuse.models.FoodJoke
 import com.mealmuse.models.FoodRecipe
 import retrofit2.Response
 import javax.inject.Inject
@@ -22,5 +23,10 @@ class RemoteDataSource @Inject constructor(
     //este código permite buscar recetas de alimentos utilizando la API complexSearch y devuelve los resultados filtrados según las consultas proporcionadas en el mapa de searchQuery.
     suspend fun searchRecipes(searchQuery: Map<String, String>): Response<FoodRecipe> {
         return foodRecipesApi.searchRecipes(searchQuery)
+    }
+
+    //esta función se utiliza para encapsular la llamada a la API y simplificar su uso en otros lugares de la aplicación.
+    suspend fun getFoodJoke(apiKey: String): Response<FoodJoke> {
+        return foodRecipesApi.getFoodJoke(apiKey)
     }
 }
