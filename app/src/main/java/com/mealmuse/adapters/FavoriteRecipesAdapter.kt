@@ -61,7 +61,7 @@ class FavoriteRecipesAdapter(
 
         /**
          * Single Click Listener
-         * */
+         **/
         holder.binding.favoriteRecipesRowLayout.setOnClickListener {
             if (multiSelection) {
                 applySelection(holder, currentRecipe)
@@ -77,7 +77,7 @@ class FavoriteRecipesAdapter(
 
         /**
          * Long Click Listener
-         * */
+         **/
         holder.binding.favoriteRecipesRowLayout.setOnLongClickListener {
             if (!multiSelection) {
                 multiSelection = true

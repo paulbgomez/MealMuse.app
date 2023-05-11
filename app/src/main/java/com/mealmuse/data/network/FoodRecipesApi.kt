@@ -1,8 +1,10 @@
 package com.mealmuse.data.network
 
+import com.mealmuse.models.FoodJoke
 import com.mealmuse.models.FoodRecipe
 import retrofit2.http.GET
 import retrofit2.Response
+import retrofit2.http.Query
 import retrofit2.http.QueryMap
 
 //esta interfaz FoodRecipesApi define una solicitud HTTP para obtener recetas de alimentos utilizando la API complexSearch.
@@ -19,5 +21,11 @@ interface FoodRecipesApi {
     suspend fun searchRecipes(
         @QueryMap searchQuery: Map<String, String>
     ): Response<FoodRecipe>
+
+    //La URL para la solicitud es "food/jokes/random" y se espera una respuesta que contenga un objeto de tipo FoodJoke.
+    @GET("food/jokes/random")
+    suspend fun getFoodJoke(
+        @Query("apiKey") apiKey: String
+    ): Response<FoodJoke>
 
 }

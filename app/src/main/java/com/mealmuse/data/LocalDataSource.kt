@@ -2,6 +2,7 @@ package com.mealmuse.data
 
 import com.mealmuse.data.database.RecipesDao
 import com.mealmuse.data.database.entities.FavoritesEntity
+import com.mealmuse.data.database.entities.FoodJokeEntity
 import com.mealmuse.data.database.entities.RecipesEntity
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -32,10 +33,19 @@ class LocalDataSource @Inject constructor(
         return recipesDao.readFavoriteRecipes()
     }
 
+    fun readFoodJoke(): Flow<List<FoodJokeEntity>> {
+        return recipesDao.readFoodJoke()
+    }
+
+
     //utiliza el objeto RecipesDao para insertar una entidad de recetas favoritas (FavoritesEntity) en la tabla de recetas favoritas (favorite_recipes_table) de la base de datos. Esta función es suspendida,
     // lo que significa que puede ser utilizada en corutinas y ejecutarse de manera asíncrona.
     suspend fun insertFavoriteRecipes(favoritesEntity: FavoritesEntity) {
         recipesDao.insertFavoriteRecipe(favoritesEntity)
+    }
+
+    suspend fun insertFoodJoke(foodJokeEntity: FoodJokeEntity) {
+        recipesDao.insertFoodJoke(foodJokeEntity)
     }
 
     //utiliza el objeto RecipesDao para eliminar una entidad de recetas favoritas (FavoritesEntity) de la tabla de recetas favoritas (favorite_recipes_table) de la base de datos. Esta función es suspendida,
