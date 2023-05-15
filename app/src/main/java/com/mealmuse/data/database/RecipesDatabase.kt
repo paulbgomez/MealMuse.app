@@ -9,7 +9,7 @@ import com.mealmuse.data.database.entities.RecipesEntity
 
 @Database(
     entities = [RecipesEntity::class, FavoritesEntity::class, FoodJokeEntity::class],
-    version = 3,
+    version = 1,
     exportSchema = false,
 )
 @TypeConverters(RecipesTypeConverter::class)
@@ -22,6 +22,7 @@ abstract class RecipesDatabase: RoomDatabase() {
 
         private var instance: RecipesDatabase? = null
 
+
         fun getInstance(context: Context): RecipesDatabase {
             if (instance == null) {
                 synchronized(RecipesDatabase::class) {
@@ -30,6 +31,7 @@ abstract class RecipesDatabase: RoomDatabase() {
             }
             return instance!!
         }
+
 
         private fun buildDatabase(context: Context): RecipesDatabase {
             return Room.databaseBuilder(
