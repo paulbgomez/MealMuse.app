@@ -72,7 +72,7 @@ class RecipesBottomSheet : BottomSheetDialogFragment() {
             //Cuando el botón es pulsado, se llama al método saveMealAndDietType del RecipesViewModel y
             // se le pasan los valores de las variables mealTypeChip,
             // mealTypeChipId, dietTypeChip y dietTypeChipId como argumentos.
-            recipesViewModel.saveMealAndDietType(
+            recipesViewModel.saveMealAndDietTypeTemp(
                 mealTypeChip,
                 mealTypeChipId,
                 dietTypeChip,

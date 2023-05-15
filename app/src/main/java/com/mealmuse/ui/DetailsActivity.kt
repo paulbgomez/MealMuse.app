@@ -62,12 +62,12 @@ class DetailsActivity : AppCompatActivity() {
             fragments,
             this
         )
-        binding.viewPager.isUserInputEnabled = false
-        binding.viewPager.apply {
+        binding.viewPager2.isUserInputEnabled = false
+        binding.viewPager2.apply {
             adapter = pagerAdapter
         }
 
-        TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
+        TabLayoutMediator(binding.tabLayout, binding.viewPager2) { tab, position ->
             tab.text = titles[position]
         }.attach()
     }

@@ -12,16 +12,28 @@ import com.mealmuse.util.RecipesDiffUtil
 import com.mealmuse.util.Constants.Companion.BASE_IMAGE_URL
 import java.util.*
 
+/**
+ * Adaptador para mostrar la lista de ingredientes.
+ */
 class IngredientsAdapter : RecyclerView.Adapter<IngredientsAdapter.MyViewHolder>() {
 
     // Lista de ingredientes
     private var ingredientsList = emptyList<ExtendedIngredient>()
 
-    // Clase ViewHolder para almacenar referencias de vista
+    /**
+     * ViewHolder que almacena las referencias de la vista.
+     */
     class MyViewHolder(val binding: IngredientsRowLayoutBinding) :
         RecyclerView.ViewHolder(binding.root)
 
-    // Crea el ViewHolder rellenando el diseño del elemento de fila y devuelve el ViewHolder
+    /**
+     * Crea un ViewHolder inflando el diseño de la fila y devuelve el ViewHolder creado.
+     *
+     * @param parent   El ViewGroup padre.
+     * @param viewType El tipo de vista del elemento.
+     * @return El ViewHolder creado.
+     */
+    @Override
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         return MyViewHolder(
             IngredientsRowLayoutBinding.inflate(
@@ -32,7 +44,13 @@ class IngredientsAdapter : RecyclerView.Adapter<IngredientsAdapter.MyViewHolder>
         )
     }
 
-    // Vincula los datos del ingrediente a la vista del elemento de fila
+    /**
+     * Vincula los datos del ingrediente a la vista del elemento de fila.
+     *
+     * @param holder   El ViewHolder que contiene la vista del elemento.
+     * @param position La posición del elemento en la lista.
+     */
+    @Override
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         // Carga la imagen del ingrediente
         holder.binding.ingredientImageView.load(BASE_IMAGE_URL + ingredientsList[position].image) {
@@ -55,19 +73,27 @@ class IngredientsAdapter : RecyclerView.Adapter<IngredientsAdapter.MyViewHolder>
         holder.binding.ingredientOriginal.text = ingredientsList[position].original
     }
 
-    // Devuelve la cantidad de elementos en la lista de ingredientes
+    /**
+     * Devuelve la cantidad de elementos en la lista de ingredientes.
+     *
+     * @return La cantidad de elementos.
+     */
+    @Override
     override fun getItemCount(): Int {
         return ingredientsList.size
     }
 
-    // Establece los nuevos datos en la lista de ingredientes y actualiza la vista utilizando DiffUtil
+    /**
+     * Establece los nuevos datos en la lista de ingredientes y actualiza la vista utilizando DiffUtil.
+     *
+     * @param newIngredients La nueva lista de ingredientes.
+     */
     fun setData(newIngredients: List<ExtendedIngredient>) {
         // Crea un objeto RecipesDiffUtil para comparar las listas antiguas y nuevas
         val ingredientsDiffUtil =
             RecipesDiffUtil(ingredientsList, newIngredients)
         // Calcula la diferencia entre las listas antiguas y nuevas
         val diffUtilResult = DiffUtil.calculateDiff(ingredientsDiffUtil)
-        // Establece la nueva lista de ingredientes
         ingredientsList = newIngredients
         // Actualiza la vista con la nueva lista utilizando DiffUtil
         diffUtilResult.dispatchUpdatesTo(this)

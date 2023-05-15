@@ -12,6 +12,7 @@ import coil.load
 import com.mealmuse.R
 import com.mealmuse.bindingadapters.RecipesRowBinding
 import com.mealmuse.databinding.FragmentOverviewBinding
+import com.mealmuse.models.Result
 import com.mealmuse.util.retrieveParcelable
 import com.mealmuse.util.Constants.Companion.RECIPE_RESULT_KEY
 
@@ -28,8 +29,8 @@ class OverviewFragment : Fragment() {
         _binding = FragmentOverviewBinding.inflate(inflater, container, false)
 
         val args = arguments
-        val myBundle: com.mealmuse.models.Result? =
-            args!!.retrieveParcelable(RECIPE_RESULT_KEY) as com.mealmuse.models.Result?
+        val myBundle: Result? = args!!.retrieveParcelable(RECIPE_RESULT_KEY) as Result?
+
 
         if (myBundle != null) {
             binding.mainImageView.load(myBundle.image)
@@ -38,21 +39,14 @@ class OverviewFragment : Fragment() {
             binding.timeTextView.text = myBundle.readyInMinutes.toString()
             RecipesRowBinding.parseHtml(binding.summaryTextView, myBundle.summary)
 
-            updateColors(
-                myBundle.vegetarian,
-                binding.vegTextView,
-                binding.vegImageView
-            )
+            updateColors(myBundle.vegetarian, binding.vegTextView, binding.vegImageView)
             updateColors(myBundle.vegan, binding.veganTextView, binding.veganImageView)
             updateColors(myBundle.cheap, binding.cheapTextView, binding.cheapImageView)
             updateColors(myBundle.dairyFree, binding.dairyTextView, binding.dairyImageView)
-            updateColors(
-                myBundle.glutenFree,
-                binding.glutenTextView,
-                binding.glutenImageView
-            )
+            updateColors(myBundle.glutenFree, binding.glutenTextView, binding.glutenImageView)
             updateColors(myBundle.veryHealthy, binding.healthyTextView, binding.healthyImageView)
         }
+
 
         return binding.root
     }

@@ -11,7 +11,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.Navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -25,7 +24,6 @@ import com.mealmuse.util.observeOnce
 import com.mealmuse.viewmodels.RecipesViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 
@@ -43,6 +41,13 @@ class RecipesFragment : Fragment(), SearchView.OnQueryTextListener {
     private val mAdapter by lazy { RecipesAdapter() }
 
     private lateinit var networkListener: NetworkListener
+
+    override fun onResume() {
+        super.onResume()
+        if (mainViewModel.recyclerViewState != null) {
+            binding.recyclerview.layoutManager?.onRestoreInstanceState(mainViewModel.recyclerViewState)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -89,11 +94,12 @@ class RecipesFragment : Fragment(), SearchView.OnQueryTextListener {
         //el código está iniciando un observador de la disponibilidad de red utilizando NetworkListener y actualizando el estado de la red en el ViewModel cada vez que se produce un cambio en la disponibilidad de la red. Además, se está leyendo la base de datos cada vez que cambia el estado de la red.
        lifecycleScope.launch {
            networkListener = NetworkListener()
-           networkListener.checkNetworkAvailability(requireContext()).collect { status ->
-               Log.d("NetworkListener", status.toString())
-               recipesViewModel.networkStatus = status
-               recipesViewModel.showNetworkStatus()
-               readDatabase()
+           networkListener.checkNetworkAvailability(requireContext())
+               .collect { status ->
+                    Log.d("NetworkListener", status.toString())
+                    recipesViewModel.networkStatus = status
+                    recipesViewModel.showNetworkStatus()
+                    readDatabase()
            }
        }
 
@@ -133,31 +139,27 @@ class RecipesFragment : Fragment(), SearchView.OnQueryTextListener {
     //La función readDatabase() se utiliza para leer datos de la base de datos local y mostrarlos en la interfaz de usuario de la aplicación.
     private fun readDatabase() {
         lifecycleScope.launch {
-            // se llama a la función readRecipes del ViewModel (mainViewModel) para obtener la lista de entidades de recetas almacenadas en la base de datos. La función
-            // observe se utiliza para observar los cambios en el objeto LiveData devuelto por la función readRecipes.
-            mainViewModel.readRecipes.observeOnce(viewLifecycleOwner, { database ->
+            mainViewModel.readRecipes.observeOnce(viewLifecycleOwner) { database ->
                 if (database.isNotEmpty() && !args.backFromBottomSheet) {
                     Log.d("RecipesFragment", "readDatabase called!")
-                    //Cuando se detectan cambios en la lista de entidades de recetas (database), se verifica si la lista no está vacía y se llama a la función setData del adaptador (mAdapter) para establecer
-                    // los datos en la lista de recetas que se mostrará en la interfaz de usuario.
-                    mAdapter.setData(database[0].foodRecipe)
+                    mAdapter.setData(database.first().foodRecipe)
                     hideShimmerEffect()
                 } else {
-                    //Si la lista de entidades de recetas está vacía, se llama a la función requestApiData() para obtener los datos de una fuente remota (como una API).
                     requestApiData()
                 }
-            })
+            }
         }
     }
 
     private fun requestApiData() {
         Log.d("RecipesFragment", "requestApiData called!")
         mainViewModel.getRecipes(recipesViewModel.applyQueries())
-        mainViewModel.recipesResponse.observe(viewLifecycleOwner, { response ->
-            when(response){
+        mainViewModel.recipesResponse.observe(viewLifecycleOwner) { response ->
+            when (response) {
                 is NetworkResult.Success -> {
                     hideShimmerEffect()
                     response.data?.let { mAdapter.setData(it) }
+                    recipesViewModel.saveMealAndDietType()
                 }
                 is NetworkResult.Error -> {
                     hideShimmerEffect()
@@ -168,18 +170,18 @@ class RecipesFragment : Fragment(), SearchView.OnQueryTextListener {
                         Toast.LENGTH_SHORT
                     ).show()
                 }
-                is NetworkResult.Loading ->{
+                is NetworkResult.Loading -> {
                     showShimmerEffect()
                 }
             }
-        })
+        }
     }
 
 
     private fun searchApiData(searchQuery: String) {
         showShimmerEffect()
         mainViewModel.searchRecipes(recipesViewModel.applySearchQuery(searchQuery))
-        mainViewModel.searchedRecipesResponse.observe(viewLifecycleOwner, { response ->
+        mainViewModel.searchedRecipesResponse.observe(viewLifecycleOwner) { response ->
             when (response) {
                 is NetworkResult.Success -> {
                     hideShimmerEffect()
@@ -199,24 +201,24 @@ class RecipesFragment : Fragment(), SearchView.OnQueryTextListener {
                     showShimmerEffect()
                 }
             }
-        })
+        }
     }
 
 
     //La función loadDataFromCache() se utiliza para cargar datos de la base de datos local y mostrarlos en la interfaz de usuario de la aplicación.
     private fun loadDataFromCache() {
-        lifecycleScope.launch {
-            mainViewModel.readRecipes.observe(viewLifecycleOwner, {database->
-                if (database.isNotEmpty()) {
-                    mAdapter.setData(database[0].foodRecipe)
-                }
-            })
+        mainViewModel.readRecipes.observe(viewLifecycleOwner) { database ->
+            if (database.isNotEmpty()) {
+                mAdapter.setData(database.first().foodRecipe)
+            }
         }
     }
 
     //The showShimmerEffect() function uses the showShimmer() method of the list view (mView.recyclerview)
     // to show the shimmer effect.
     private fun showShimmerEffect() {
+        binding.shimmerFrameLayout.startShimmer()
+        binding.shimmerFrameLayout.visibility = View.VISIBLE
         binding.recyclerview.visibility = View.GONE
     }
 
@@ -224,11 +226,15 @@ class RecipesFragment : Fragment(), SearchView.OnQueryTextListener {
     // view to hide the shimmer effect once the list items have
     //    // been loaded and are ready to be displayed.
     private fun hideShimmerEffect() {
+        binding.shimmerFrameLayout.stopShimmer()
+        binding.shimmerFrameLayout.visibility = View.GONE
         binding.recyclerview.visibility = View.VISIBLE
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onDestroyView() {
+        super.onDestroyView()
+        mainViewModel.recyclerViewState =
+            binding.recyclerview.layoutManager?.onSaveInstanceState()
         _binding = null
     }
 

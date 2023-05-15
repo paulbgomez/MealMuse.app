@@ -45,20 +45,6 @@ class RecipesRowBinding {
             }
         }
 
-        //we need to specify the name of the attribute which we are going to use inside our recipes roll out.
-        @BindingAdapter("setNumberOfLikes")
-        //we are telling to the compiler to make the function static
-        @JvmStatic
-        //function which will convert integer value of number of likes to string.
-        fun setNumberOfLikes(textView: TextView, likes: Int){
-            textView.text = likes.toString()
-        }
-
-        @BindingAdapter("setNumberOfMinutes")
-        @JvmStatic
-        fun setNumberOfMinutes(textView: TextView, minutes: Int){
-            textView.text = minutes.toString()
-        }
 
         @BindingAdapter("applyVeganColor")
         @JvmStatic
