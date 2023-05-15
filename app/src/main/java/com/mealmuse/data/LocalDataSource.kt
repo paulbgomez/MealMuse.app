@@ -7,55 +7,65 @@ import com.mealmuse.data.database.entities.RecipesEntity
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
-//Esta clase utiliza la anotación @Inject para indicar que se debe proporcionar una
-// instancia de RecipesDao a través de la inyección de dependencias.
+/**
+ * Clase de origen de datos local que interactúa con la base de datos y proporciona operaciones de lectura y escritura.
+ */
 class LocalDataSource @Inject constructor(
     private val recipesDao: RecipesDao
 ) {
 
-    //utiliza el objeto RecipesDao para leer los datos de la tabla de recetas (recipes_table) de la base de datos.
-    // Retorna un objeto Flow que fluirá una lista de entidades
-    // de recetas (RecipesEntity) cada vez que la base de datos sea actualizada.
+    /**
+     * Lee todas las recetas desde la base de datos.
+     */
     fun readRecipes(): Flow<List<RecipesEntity>> {
         return recipesDao.readRecipes()
     }
 
-    //utiliza el objeto RecipesDao para insertar una entidad de recetas (RecipesEntity) en la tabla de
-    // recetas (recipes_table) de la base de datos. Esta función es suspendida, lo que significa que puede ser
-    // utilizada en corutinas y ejecutarse de manera asíncrona.
+    /**
+     * Inserta una receta en la base de datos.
+     */
     suspend fun insertRecipes(recipesEntity: RecipesEntity) {
         recipesDao.insertRecipes(recipesEntity)
     }
 
-    // utiliza el objeto RecipesDao para leer los datos de la tabla de recetas favoritas (favorite_recipes_table) de la base de datos.
-    // Devuelve un objeto Flow que fluirá una lista de entidades de recetas favoritas (FavoritesEntity) cada vez que la base de datos sea actualizada.
+    /**
+     * Lee todas las recetas favoritas desde la base de datos.
+     */
     fun readFavoriteRecipes(): Flow<List<FavoritesEntity>> {
         return recipesDao.readFavoriteRecipes()
     }
 
+    /**
+     * Lee todos los chistes de comida desde la base de datos.
+     */
     fun readFoodJoke(): Flow<List<FoodJokeEntity>> {
         return recipesDao.readFoodJoke()
     }
 
-
-    //utiliza el objeto RecipesDao para insertar una entidad de recetas favoritas (FavoritesEntity) en la tabla de recetas favoritas (favorite_recipes_table) de la base de datos. Esta función es suspendida,
-    // lo que significa que puede ser utilizada en corutinas y ejecutarse de manera asíncrona.
+    /**
+     * Inserta una receta favorita en la base de datos.
+     */
     suspend fun insertFavoriteRecipes(favoritesEntity: FavoritesEntity) {
         recipesDao.insertFavoriteRecipe(favoritesEntity)
     }
 
+    /**
+     * Inserta un chiste de comida en la base de datos.
+     */
     suspend fun insertFoodJoke(foodJokeEntity: FoodJokeEntity) {
         recipesDao.insertFoodJoke(foodJokeEntity)
     }
 
-    //utiliza el objeto RecipesDao para eliminar una entidad de recetas favoritas (FavoritesEntity) de la tabla de recetas favoritas (favorite_recipes_table) de la base de datos. Esta función es suspendida,
-    // lo que significa que puede ser utilizada en corutinas y ejecutarse de manera asíncrona.
+    /**
+     * Elimina una receta favorita de la base de datos.
+     */
     suspend fun deleteFavoriteRecipe(favoritesEntity: FavoritesEntity) {
         recipesDao.deleteFavoriteRecipe(favoritesEntity)
     }
 
-    //utiliza el objeto RecipesDao para eliminar todas las entidades de recetas favoritas (FavoritesEntity) de la tabla de recetas favoritas (favorite_recipes_table) de la base de datos. Esta función es suspendida,
-    // lo que significa que puede ser utilizada en corutinas y ejecutarse de manera asíncrona.
+    /**
+     * Elimina todas las recetas favoritas de la base de datos.
+     */
     suspend fun deleteAllFavoriteRecipes() {
         recipesDao.deleteAllFavoriteRecipes()
     }

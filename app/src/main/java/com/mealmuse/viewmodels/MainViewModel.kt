@@ -20,7 +20,13 @@ import kotlinx.coroutines.launch
 import retrofit2.Response
 import javax.inject.Inject
 
-// Se utiliza la anotación @HiltViewModel para indicar que esta clase es un ViewModel que utiliza Hilt para la inyección de dependencias
+
+/**
+ * Clase MainViewModel que extiende ViewModel y se utiliza como ViewModel para la actividad principal.
+ *
+ * @param repository El repositorio que proporciona los datos de la aplicación.
+ * @param application La instancia de la aplicación.
+ */
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val repository: Repository,
@@ -80,19 +86,39 @@ class MainViewModel @Inject constructor(
     var searchedRecipesResponse: MutableLiveData<NetworkResult<FoodRecipe>> = MutableLiveData()
     var foodJokeResponse: MutableLiveData<NetworkResult<FoodJoke>> = MutableLiveData()
 
-    // La función "getRecipes" se utiliza para iniciar una llamada a la API y obtener los datos de la receta
+
+    /**
+     * Función para obtener las recetas.
+     *
+     * @param queries Los parámetros de consulta para la API.
+     */
     fun getRecipes(queries: Map<String, String>) = viewModelScope.launch {
         getRecipesSafeCall(queries) // Se llama a la función "getRecipesSafeCall" para realizar la llamada segura a la API
     }
 
+    /**
+     * Función para buscar recetas.
+     *
+     * @param searchQuery El parámetro de búsqueda para la API.
+     */
     fun searchRecipes(searchQuery: Map<String, String>) = viewModelScope.launch {
         searchRecipesSafeCall(searchQuery)
     }
 
+    /**
+     * Función para obtener una broma relacionada con la comida.
+     *
+     * @param apiKey La clave de la API.
+     */
     fun getFoodJoke(apiKey: String) = viewModelScope.launch {
         getFoodJokeSafeCall(apiKey)
     }
 
+    /**
+     * Función para realizar una llamada segura a la API y obtener una broma relacionada con la comida.
+     *
+     * @param apiKey La clave de la API.
+     */
     private suspend fun getFoodJokeSafeCall(apiKey: String) {
         foodJokeResponse.value = NetworkResult.Loading()
         if (hasInternetConnection()) {
@@ -112,7 +138,11 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    // La función "getRecipesSafeCall" se utiliza para realizar una llamada segura a la API y procesar la respuesta
+    /**
+     * Función para realizar una llamada segura a la API y obtener las recetas de alimentos.
+     *
+     * @param queries Los parámetros de consulta para la búsqueda de recetas.
+     */
     private suspend fun getRecipesSafeCall(queries: Map<String, String>) {
         recipesResponse.value = NetworkResult.Loading()
         // Se comprueba si el dispositivo tiene conexión a internet utilizando la función "hasInternetConnection"
@@ -135,7 +165,11 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    //este código asegura que se realice una búsqueda segura de recetas de alimentos, maneja los diferentes escenarios de resultados de la API y actualiza searchedRecipesResponse con información adicional de si la búsqueda tuvo éxito o no, errores que puedan haber ocurrido y el estado actual de la búsqueda.
+    /**
+     * Función para realizar una llamada segura a la API y buscar recetas de alimentos.
+     *
+     * @param searchQuery Los parámetros de búsqueda de recetas.
+     */
     private suspend fun searchRecipesSafeCall(searchQuery: Map<String, String>) {
         searchedRecipesResponse.value = NetworkResult.Loading()
         if (hasInternetConnection()) {
@@ -150,19 +184,32 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    //Es una función privada que se utiliza para almacenar en caché una receta (FoodRecipe) en la base de datos local.
-    //Actúa como una capa intermedia entre la capa de presentación de la aplicación y la capa de datos, permitiendo que la aplicación almacene datos en caché para un acceso rápido y sin conexión.
+    /**
+     * Almacena en caché una receta de alimentos en la base de datos local.
+     *
+     * @param foodRecipe La receta de alimentos a almacenar en caché.
+     */
     private fun offlineCacheRecipes(foodRecipe: FoodRecipe) {
         val recipesEntity = RecipesEntity(foodRecipe)
         insertRecipes(recipesEntity)
     }
 
+    /**
+     * Almacena en caché una broma de alimentos en la base de datos local.
+     *
+     * @param foodJoke La broma de alimentos a almacenar en caché.
+     */
     private fun offlineCacheFoodJoke(foodJoke: FoodJoke) {
         val foodJokeEntity = FoodJokeEntity(foodJoke)
         insertFoodJoke(foodJokeEntity)
     }
 
-    // La función "handleFoodRecipesResponse" se utiliza para procesar la respuesta de la API y devolver un valor de éxito o error
+    /**
+     * Maneja la respuesta de la API de recetas de alimentos y la convierte en un objeto NetworkResult.
+     *
+     * @param response La respuesta de la API de recetas de alimentos.
+     * @return Un objeto NetworkResult que contiene el resultado de la respuesta.
+     */
     private fun handleFoodRecipesResponse(response: Response<FoodRecipe>): NetworkResult<FoodRecipe>? {
         // Se comprueba si la respuesta de la API contiene un mensaje de "timeout"
         when {
@@ -189,6 +236,12 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Maneja la respuesta de la API de bromas de alimentos y la convierte en un objeto NetworkResult.
+     *
+     * @param response La respuesta de la API de bromas de alimentos.
+     * @return Un objeto NetworkResult que contiene el resultado de la respuesta.
+     */
     private fun handleFoodJokeResponse(response: Response<FoodJoke>): NetworkResult<FoodJoke>? {
         return when {
             response.message().toString().contains("timeout") -> {
@@ -207,7 +260,11 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    // Función que verifica si hay conexión a internet
+    /**
+     * Verifica si el dispositivo tiene conexión a internet.
+     *
+     * @return true si hay conexión a internet, false de lo contrario.
+     */
     private fun hasInternetConnection(): Boolean {
         // Se obtiene el servicio de conectividad del sistema del dispositivo a través de la aplicación
         val connectivityManager = getApplication<Application>().getSystemService(

@@ -23,6 +23,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * ViewModel para la pantalla de recetas.
+ *
+ * @property application Referencia a la aplicación.
+ * @property dataStoreRepository Repositorio de DataStore para almacenamiento de datos.
+ */
 @HiltViewModel
 class RecipesViewModel @Inject constructor (
     application: Application,
@@ -37,6 +43,9 @@ class RecipesViewModel @Inject constructor (
     val readMealAndDietType = dataStoreRepository.readMealAndDietType
     val readBackOnline = dataStoreRepository.readBackOnline.asLiveData()
 
+    /**
+     * Guarda el tipo de comida y dieta seleccionados en el DataStore.
+     */
     fun saveMealAndDietType() =
         viewModelScope.launch(Dispatchers.IO) {
             if (this@RecipesViewModel::mealAndDiet.isInitialized) {
@@ -49,6 +58,14 @@ class RecipesViewModel @Inject constructor (
             }
         }
 
+    /**
+     * Guarda temporalmente el tipo de comida y dieta seleccionados.
+     *
+     * @param mealType Tipo de comida seleccionado.
+     * @param mealTypeId ID del tipo de comida seleccionado.
+     * @param dietType Tipo de dieta seleccionado.
+     * @param dietTypeId ID del tipo de dieta seleccionado.
+     */
     fun saveMealAndDietTypeTemp(
         mealType: String,
         mealTypeId: Int,
@@ -63,11 +80,22 @@ class RecipesViewModel @Inject constructor (
         )
     }
 
+    /**
+     * Guarda el estado de conexión a internet en el DataStore.
+     *
+     * @param backOnline Estado de conexión a internet.
+     */
     private fun saveBackOnline(backOnline: Boolean) =
         viewModelScope.launch(Dispatchers.IO) {
             dataStoreRepository.saveBackOnline(backOnline)
         }
 
+    /**
+     * Aplica la consulta de búsqueda de recetas al crear un HashMap con los parámetros necesarios.
+     *
+     * @param searchQuery Consulta de búsqueda.
+     * @return HashMap con los parámetros de la consulta.
+     */
     fun applySearchQuery(searchQuery: String): HashMap<String, String> {
         val queries: HashMap<String, String> = HashMap()
         queries[QUERY_SEARCH] = searchQuery
@@ -78,8 +106,12 @@ class RecipesViewModel @Inject constructor (
         return queries
     }
 
-
-
+    /**
+     * Aplica los parámetros de consulta para obtener recetas al crear un HashMap con los valores predeterminados
+     * o los valores seleccionados por el usuario.
+     *
+     * @return HashMap con los parámetros de la consulta.
+     */
     fun applyQueries(): HashMap<String, String> {
         val queries: HashMap<String, String> = HashMap()
 
@@ -99,6 +131,9 @@ class RecipesViewModel @Inject constructor (
         return queries
     }
 
+    /**
+     * Muestra el estado de la conexión a internet y guarda el estado de conexión en el DataStore.
+     */
     fun showNetworkStatus() {
         if (!networkStatus) {
             Toast.makeText(getApplication(), "No Internet Connection.", Toast.LENGTH_SHORT).show()

@@ -11,6 +11,9 @@ import com.mealmuse.databinding.FragmentIngredientsBinding
 import com.mealmuse.util.Constants.Companion.RECIPE_RESULT_KEY
 import com.mealmuse.util.retrieveParcelable
 
+/**
+ * Fragmento que muestra los ingredientes de una receta.
+ */
 class IngredientsFragment : Fragment() {
 
     // Inicializa los IngredientsAdapter usando lazy loading
@@ -21,7 +24,12 @@ class IngredientsFragment : Fragment() {
     private val binding get() = _binding!!
 
     /**
-     * Inflate the layout for this fragment and set up the RecyclerView
+     * Infla el diseño de este fragmento y configura el RecyclerView.
+     *
+     * @param inflater El inflater utilizado para inflar el diseño del fragmento.
+     * @param container El contenedor padre en el cual el diseño del fragmento será colocado.
+     * @param savedInstanceState El estado previamente guardado del fragmento, si existe.
+     * @return La vista inflada del fragmento.
      */
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -41,7 +49,7 @@ class IngredientsFragment : Fragment() {
     }
 
     /**
-     * Set up del RecyclerView
+     * Configura el RecyclerView.
      */
     private fun setupRecyclerView() {
         binding.ingredientsRecyclerview.adapter = mAdapter
@@ -49,7 +57,7 @@ class IngredientsFragment : Fragment() {
     }
 
     /**
-     * Limpia el binding
+     * Limpia el binding cuando el fragmento es destruido.
      */
     override fun onDestroyView() {
         super.onDestroyView()

@@ -10,11 +10,22 @@ import com.mealmuse.databinding.FragmentInstructionsBinding
 import com.mealmuse.util.Constants.Companion.RECIPE_RESULT_KEY
 import com.mealmuse.util.retrieveParcelable
 
+/**
+ * Fragmento que muestra las instrucciones de una receta.
+ */
 class InstructionsFragment : Fragment() {
 
     private var _binding: FragmentInstructionsBinding? = null
     private val binding get() = _binding!!
 
+    /**
+     * Infla el diseño de este fragmento y carga las instrucciones de la receta en un WebView.
+     *
+     * @param inflater El inflater utilizado para inflar el diseño del fragmento.
+     * @param container El contenedor padre en el cual el diseño del fragmento será colocado.
+     * @param savedInstanceState El estado previamente guardado del fragmento, si existe.
+     * @return La vista inflada del fragmento.
+     */
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -34,6 +45,9 @@ class InstructionsFragment : Fragment() {
         return binding.root
     }
 
+    /**
+     * Limpia el binding cuando el fragmento es destruido.
+     */
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

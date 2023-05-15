@@ -26,7 +26,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 
-
+/**
+ * Fragmento que muestra una lista de recetas.
+ */
 @ExperimentalCoroutinesApi
 @AndroidEntryPoint
 class RecipesFragment : Fragment(), SearchView.OnQueryTextListener {
@@ -42,6 +44,9 @@ class RecipesFragment : Fragment(), SearchView.OnQueryTextListener {
 
     private lateinit var networkListener: NetworkListener
 
+    /**
+     * Se reanuda el fragmento y se restaura el estado del RecyclerView.
+     */
     override fun onResume() {
         super.onResume()
         if (mainViewModel.recyclerViewState != null) {
@@ -49,12 +54,25 @@ class RecipesFragment : Fragment(), SearchView.OnQueryTextListener {
         }
     }
 
+    /**
+     * Se crea el fragmento y se inicializan los ViewModels.
+     *
+     * @param savedInstanceState El estado previamente guardado del fragmento, si existe.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mainViewModel = ViewModelProvider(requireActivity())[MainViewModel::class.java]
         recipesViewModel = ViewModelProvider(requireActivity())[RecipesViewModel::class.java]
     }
 
+    /**
+     * Infla el diseño de este fragmento, configura el menú y el RecyclerView, y establece observadores.
+     *
+     * @param inflater El inflater utilizado para inflar el diseño del fragmento.
+     * @param container El contenedor padre en el cual el diseño del fragmento será colocado.
+     * @param savedInstanceState El estado previamente guardado del fragmento, si existe.
+     * @return La vista inflada del fragmento.
+     */
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -64,9 +82,14 @@ class RecipesFragment : Fragment(), SearchView.OnQueryTextListener {
         binding.lifecycleOwner = this
         binding.mainViewModel = mainViewModel
 
-        //está definiendo un menú en una actividad o fragmento y proporcionando una implementación de la interfaz MenuProvider para manejar la creación y selección de elementos del menú.
         val menuHost: MenuHost = requireActivity()
         menuHost.addMenuProvider(object : MenuProvider {
+            /**
+             * Crea el menú y establece el listener de búsqueda.
+             *
+             * @param menu El menú que se va a crear.
+             * @param menuInflater El inflater utilizado para inflar el menú.
+             */
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                 menuInflater.inflate(R.menu.recipes_menu, menu)
 
@@ -76,14 +99,17 @@ class RecipesFragment : Fragment(), SearchView.OnQueryTextListener {
                 searchView?.setOnQueryTextListener(this@RecipesFragment)
             }
 
+            /**
+             * Se llama cuando se selecciona un elemento del menú.
+             *
+             * @param menuItem El elemento de menú seleccionado.
+             * @return Booleano que indica si el evento de selección se ha consumido.
+             */
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 return true
             }
         }, viewLifecycleOwner, Lifecycle.State.RESUMED)
 
-
-        //So whenever our application starts, our cycle of you will set up and this short treatment effect will
-        //appear.
         setupRecyclerView()
 
         //este código permite observar los cambios en el valor de disponibilidad de red (readBackOnline) del ViewModel y actualizar la propiedad backOnline del ViewModel en consecuencia. Esto es útil para asegurarse de que la aplicación tenga la información más actualizada sobre la disponibilidad de red en todo momento.
@@ -115,14 +141,21 @@ class RecipesFragment : Fragment(), SearchView.OnQueryTextListener {
         return binding.root
     }
 
-    //este código es parte del proceso de configuración de RecyclerView y normalmente se llama durante la inicialización de un fragmento o actividad que muestra una lista de elementos
+    /**
+     * Configura el RecyclerView con el adaptador y el administrador de diseño.
+     */
     private fun setupRecyclerView() {
         binding.recyclerview.adapter = mAdapter
         binding.recyclerview.layoutManager = LinearLayoutManager(requireContext())
         showShimmerEffect()
     }
 
-    //el método devuelve true para indicar que la consulta de búsqueda ha sido manejada.
+    /**
+     * Se llama cuando se envía una consulta de búsqueda.
+     *
+     * @param query La consulta de búsqueda enviada.
+     * @return Booleano que indica si la consulta de búsqueda ha sido manejada.
+     */
     override fun onQueryTextSubmit(query: String?): Boolean {
         if(query != null) {
             searchApiData(query)
@@ -130,13 +163,21 @@ class RecipesFragment : Fragment(), SearchView.OnQueryTextListener {
         return true
     }
 
+    /**
+     * Se llama cuando el texto de la consulta de búsqueda cambia.
+     *
+     * @param p0 El nuevo texto de la consulta de búsqueda.
+     * @return Booleano que indica si el cambio de texto de la consulta de búsqueda ha sido manejado.
+     */
     override fun onQueryTextChange(p0: String?): Boolean {
         return true
     }
 
 
 
-    //La función readDatabase() se utiliza para leer datos de la base de datos local y mostrarlos en la interfaz de usuario de la aplicación.
+    /**
+     * Lee datos de la base de datos local y los muestra en la interfaz de usuario.
+     */
     private fun readDatabase() {
         lifecycleScope.launch {
             mainViewModel.readRecipes.observeOnce(viewLifecycleOwner) { database ->
@@ -151,6 +192,9 @@ class RecipesFragment : Fragment(), SearchView.OnQueryTextListener {
         }
     }
 
+    /**
+     * Realiza una solicitud a la API para obtener datos.
+     */
     private fun requestApiData() {
         Log.d("RecipesFragment", "requestApiData called!")
         mainViewModel.getRecipes(recipesViewModel.applyQueries())
@@ -177,7 +221,11 @@ class RecipesFragment : Fragment(), SearchView.OnQueryTextListener {
         }
     }
 
-
+    /**
+     * Realiza una búsqueda en la API utilizando la consulta especificada.
+     *
+     * @param searchQuery La consulta de búsqueda.
+     */
     private fun searchApiData(searchQuery: String) {
         showShimmerEffect()
         mainViewModel.searchRecipes(recipesViewModel.applySearchQuery(searchQuery))
@@ -205,7 +253,9 @@ class RecipesFragment : Fragment(), SearchView.OnQueryTextListener {
     }
 
 
-    //La función loadDataFromCache() se utiliza para cargar datos de la base de datos local y mostrarlos en la interfaz de usuario de la aplicación.
+    /**
+     * Carga datos desde la base de datos local y los muestra en la interfaz de usuario.
+     */
     private fun loadDataFromCache() {
         mainViewModel.readRecipes.observe(viewLifecycleOwner) { database ->
             if (database.isNotEmpty()) {
@@ -214,23 +264,28 @@ class RecipesFragment : Fragment(), SearchView.OnQueryTextListener {
         }
     }
 
-    //The showShimmerEffect() function uses the showShimmer() method of the list view (mView.recyclerview)
-    // to show the shimmer effect.
+    /**
+     * Muestra el efecto de shimmer en el RecyclerView.
+     */
     private fun showShimmerEffect() {
         binding.shimmerFrameLayout.startShimmer()
         binding.shimmerFrameLayout.visibility = View.VISIBLE
         binding.recyclerview.visibility = View.GONE
     }
 
-    //The hideShimmerEffect() function uses the hideShimmer() method of the list
-    // view to hide the shimmer effect once the list items have
-    //    // been loaded and are ready to be displayed.
+    /**
+     * Oculta el efecto de shimmer en el RecyclerView.
+     */
     private fun hideShimmerEffect() {
         binding.shimmerFrameLayout.stopShimmer()
         binding.shimmerFrameLayout.visibility = View.GONE
         binding.recyclerview.visibility = View.VISIBLE
     }
 
+    /**
+     * Se llama cuando la vista del fragmento se destruye.
+     * Guarda el estado del RecyclerView en el ViewModel.
+     */
     override fun onDestroyView() {
         super.onDestroyView()
         mainViewModel.recyclerViewState =

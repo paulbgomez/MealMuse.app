@@ -18,6 +18,9 @@ import com.mealmuse.util.Constants.Companion.DEFAULT_MEAL_TYPE
 import com.mealmuse.viewmodels.RecipesViewModel
 import java.util.*
 
+/**
+ * Fragmento del Bottom Sheet que muestra opciones de filtro para las recetas.
+ */
 class RecipesBottomSheet : BottomSheetDialogFragment() {
 
     private lateinit var recipesViewModel: RecipesViewModel
@@ -30,12 +33,25 @@ class RecipesBottomSheet : BottomSheetDialogFragment() {
     private var dietTypeChip = DEFAULT_DIET_TYPE
     private var dietTypeChipId = 0
 
+    /**
+     * Crea el fragmento y el ViewModel asociado.
+     *
+     * @param savedInstanceState El estado previamente guardado del fragmento, si existe.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //Una vez creada la instancia del ViewModel, se puede acceder a ella en el resto del código de la Fragment a través de la variable recipesViewModel.
         recipesViewModel = ViewModelProvider(requireActivity())[RecipesViewModel::class.java]
     }
 
+    /**
+     * Infla el diseño de este fragmento y configura los listeners de los chips de selección.
+     *
+     * @param inflater El inflater utilizado para inflar el diseño del fragmento.
+     * @param container El contenedor padre en el cual el diseño del fragmento será colocado.
+     * @param savedInstanceState El estado previamente guardado del fragmento, si existe.
+     * @return La vista inflada del fragmento.
+     */
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -69,9 +85,6 @@ class RecipesBottomSheet : BottomSheetDialogFragment() {
         }
 
         binding.applyBtn.setOnClickListener {
-            //Cuando el botón es pulsado, se llama al método saveMealAndDietType del RecipesViewModel y
-            // se le pasan los valores de las variables mealTypeChip,
-            // mealTypeChipId, dietTypeChip y dietTypeChipId como argumentos.
             recipesViewModel.saveMealAndDietTypeTemp(
                 mealTypeChip,
                 mealTypeChipId,
@@ -87,6 +100,12 @@ class RecipesBottomSheet : BottomSheetDialogFragment() {
         return binding.root
     }
 
+    /**
+     * Actualiza el estado de un chip en un ChipGroup según su ID.
+     *
+     * @param chipId El ID del chip que se actualizará.
+     * @param chipGroup El ChipGroup que contiene el chip.
+     */
     private fun updateChip(chipId: Int, chipGroup: ChipGroup) {
         if (chipId != 0) {
             try {
@@ -99,6 +118,9 @@ class RecipesBottomSheet : BottomSheetDialogFragment() {
         }
     }
 
+    /**
+     * Limpia el binding cuando el fragmento es destruido.
+     */
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

@@ -6,6 +6,9 @@ import com.mealmuse.models.ExtendedIngredient
 import kotlinx.android.parcel.Parcelize
 import kotlinx.android.parcel.RawValue
 
+/**
+ * La clase Result representa un resultado de una receta de comida.
+ */
 @Parcelize
 data class Result(
     @SerializedName("aggregateLikes")

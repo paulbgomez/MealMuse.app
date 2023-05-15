@@ -19,6 +19,9 @@ import com.mealmuse.viewmodels.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
+/**
+ * Fragmento para mostrar una broma relacionada con la comida.
+ */
 @AndroidEntryPoint
 class FoodJokeFragment : Fragment() {
 
@@ -29,6 +32,13 @@ class FoodJokeFragment : Fragment() {
 
     private var foodJoke = "No Food Joke"
 
+    /**
+     * Método que se llama al crear la vista del fragmento.
+     * @param inflater El objeto LayoutInflater que se utiliza para inflar la vista del fragmento.
+     * @param container El contenedor de la vista del fragmento.
+     * @param savedInstanceState El estado previamente guardado del fragmento, si hay alguno.
+     * @return La vista inflada del fragmento.
+     */
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -39,10 +49,20 @@ class FoodJokeFragment : Fragment() {
 
         val menuHost: MenuHost = requireActivity()
         menuHost.addMenuProvider(object : MenuProvider {
+            /**
+             * Método para crear el menú del fragmento.
+             * @param menu El objeto Menu al que se añadirán los elementos del menú.
+             * @param menuInflater El objeto MenuInflater para inflar el menú.
+             */
             override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
                 menuInflater.inflate(R.menu.food_joke_menu, menu)
             }
 
+            /**
+             * Método para manejar la selección de elementos de menú.
+             * @param menuItem El elemento de menú seleccionado.
+             * @return Booleano que indica si el evento de selección del elemento de menú ha sido consumido.
+             */
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 if (menuItem.itemId == R.id.share_food_joke_menu) {
                     val shareIntent = Intent().apply {
@@ -82,6 +102,9 @@ class FoodJokeFragment : Fragment() {
         return binding.root
     }
 
+    /**
+     * Método para cargar los datos desde la caché.
+     */
     private fun loadDataFromCache() {
         lifecycleScope.launch {
             mainViewModel.readFoodJoke.observe(viewLifecycleOwner) { database ->
@@ -93,6 +116,9 @@ class FoodJokeFragment : Fragment() {
         }
     }
 
+    /**
+     * Método que se llama cuando se destruye la vista del fragmento.
+     */
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
