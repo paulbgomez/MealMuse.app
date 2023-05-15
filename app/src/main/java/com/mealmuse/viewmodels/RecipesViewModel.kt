@@ -6,6 +6,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.mealmuse.data.DataStoreRepository
+import com.mealmuse.data.MealAndDietType
 import com.mealmuse.util.Constants.Companion.API_KEY
 import com.mealmuse.util.Constants.Companion.DEFAULT_DIET_TYPE
 import com.mealmuse.util.Constants.Companion.DEFAULT_MEAL_TYPE
@@ -28,8 +29,7 @@ class RecipesViewModel @Inject constructor (
     private val dataStoreRepository: DataStoreRepository
 ) : AndroidViewModel(application){
 
-    private var mealType = DEFAULT_MEAL_TYPE
-    private var dietType = DEFAULT_DIET_TYPE
+    private lateinit var mealAndDiet: MealAndDietType
 
     var networkStatus = false
     var backOnline = false
@@ -37,15 +37,31 @@ class RecipesViewModel @Inject constructor (
     val readMealAndDietType = dataStoreRepository.readMealAndDietType
     val readBackOnline = dataStoreRepository.readBackOnline.asLiveData()
 
-    //se utiliza en la capa ViewModel de la arquitectura de la aplicación y se encarga de guardar los tipos de comida
-    // y dieta seleccionados por el usuario en el DataStore de la aplicación.
-    fun saveMealAndDietType(mealType: String, mealTypeId: Int, dietType: String, dietTypeId: Int) =
-        //Dispatchers.IO se utiliza para realizar la operación de guardado en un hilo diferente al hilo principal, de esta forma se evita bloquear la interfaz de usuario mientras se realiza la operación de escritura en el DataStore.
+    fun saveMealAndDietType() =
         viewModelScope.launch(Dispatchers.IO) {
-           //para acceder al DataStore y llamar a la función saveMealAndDietType definida en dicha clase. Esta función a su vez utiliza la instancia de
-            // DataStore para editar los valores de preferencia correspondientes.
-            dataStoreRepository.saveMealAndDietType(mealType, mealTypeId, dietType, dietTypeId)
+            if (this@RecipesViewModel::mealAndDiet.isInitialized) {
+                dataStoreRepository.saveMealAndDietType(
+                    mealAndDiet.selectedMealType,
+                    mealAndDiet.selectedMealTypeId,
+                    mealAndDiet.selectedDietType,
+                    mealAndDiet.selectedDietTypeId
+                )
+            }
         }
+
+    fun saveMealAndDietTypeTemp(
+        mealType: String,
+        mealTypeId: Int,
+        dietType: String,
+        dietTypeId: Int
+    ) {
+        mealAndDiet = MealAndDietType(
+            mealType,
+            mealTypeId,
+            dietType,
+            dietTypeId
+        )
+    }
 
     private fun saveBackOnline(backOnline: Boolean) =
         viewModelScope.launch(Dispatchers.IO) {
@@ -67,21 +83,18 @@ class RecipesViewModel @Inject constructor (
     fun applyQueries(): HashMap<String, String> {
         val queries: HashMap<String, String> = HashMap()
 
-        // utiliza collect para obtener los valores almacenados en el DataStore a través de la instancia de DataStoreRepository.
-        //Cuando se recibe un nuevo valor a través de collect, se asignan los valores de las variables selectedMealType y selectedDietType al mealType y dietType respectivamente.
-        viewModelScope.launch {
-            readMealAndDietType.collect { value ->
-                mealType = value.selectedMealType
-                dietType = value.selectedDietType
-            }
-        }
-
         queries[QUERY_NUMBER] = DEFAULT_RECIPES_NUMBER
         queries[QUERY_API_KEY] = API_KEY
-        queries[QUERY_TYPE] = mealType
-        queries[QUERY_DIET] = dietType
         queries[QUERY_ADD_RECIPE_INFORMATION] = "true"
         queries[QUERY_FILL_INGREDIENTS] = "true"
+
+        if (this@RecipesViewModel::mealAndDiet.isInitialized) {
+            queries[QUERY_TYPE] = mealAndDiet.selectedMealType
+            queries[QUERY_DIET] = mealAndDiet.selectedDietType
+        } else {
+            queries[QUERY_TYPE] = DEFAULT_MEAL_TYPE
+            queries[QUERY_DIET] = DEFAULT_DIET_TYPE
+        }
 
         return queries
     }

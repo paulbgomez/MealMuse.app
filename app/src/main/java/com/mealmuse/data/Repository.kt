@@ -1,13 +1,14 @@
 package com.mealmuse.data
 
-import dagger.hilt.android.scopes.ActivityRetainedScoped
+
+import dagger.hilt.android.scopes.ViewModelScoped
 import javax.inject.Inject
 
 /**
  * Con esta anotacion nos aseguramos de que el Repository binding sigue funcionando
  * a pesar de que haya cambios en la configuracion o activity
  */
-@ActivityRetainedScoped
+@ViewModelScoped
 class Repository @Inject constructor(
     remoteDataSource: RemoteDataSource,
     localDataSource: LocalDataSource
