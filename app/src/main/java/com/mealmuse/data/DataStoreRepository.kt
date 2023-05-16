@@ -14,26 +14,25 @@ import com.mealmuse.util.Constants.Companion.PREFERENCES_MEAL_TYPE
 import com.mealmuse.util.Constants.Companion.PREFERENCES_MEAL_TYPE_ID
 import com.mealmuse.util.Constants.Companion.PREFERENCES_NAME
 import dagger.hilt.android.qualifiers.ApplicationContext
-import dagger.hilt.android.scopes.ActivityRetainedScoped
 import dagger.hilt.android.scopes.ViewModelScoped
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-// Tiene un constructor con una dependencia de Context y está anotada con @Inject.
-// La anotación @ApplicationContext se utiliza para indicar que se debe proporcionar el
-// contexto de la aplicación en lugar del contexto de la actividad o fragmento actual.
 
 private val Context.dataStore by preferencesDataStore(PREFERENCES_NAME)
 
+/**
+ * Repositorio para acceder y guardar datos en el DataStore de la aplicación.
+ */
 @ViewModelScoped
 class DataStoreRepository @Inject constructor(@ApplicationContext private val context: Context) {
 
 
-    //define un objeto llamado PreferenceKeys que contiene cuatro propiedades estáticas.
-    // Cada una de estas propiedades es un objeto de tipo Preferences.Key que se
-    // utiliza para representar una clave de preferencia en el DataStore.
+    /**
+     * Claves de preferencia utilizadas en el DataStore.
+     */
     private object PreferenceKeys {
         val selectedMealType = stringPreferencesKey(PREFERENCES_MEAL_TYPE)
         val selectedMealTypeId = intPreferencesKey(PREFERENCES_MEAL_TYPE_ID)
@@ -42,12 +41,14 @@ class DataStoreRepository @Inject constructor(@ApplicationContext private val co
         val backOnline = booleanPreferencesKey(PREFERENCES_BACK_ONLINE)
     }
 
-    //Creamos una instancia de la clase DataStore utilizando una extensión de la clase Context llamada dataStore.
-
+    /**
+     * Instancia del DataStore utilizado para acceder a las preferencias.
+     */
     private val dataStore: DataStore<Preferences> = context.dataStore
 
-    // función suspendida que se utiliza para guardar los tipos de comida y
-    // dieta seleccionados por el usuario en el DataStore de la aplicación.
+    /**
+     * Guarda los tipos de comida y dieta seleccionados por el usuario en el DataStore.
+     */
     suspend fun saveMealAndDietType(
         mealType: String,
         mealTypeId: Int,
@@ -62,8 +63,9 @@ class DataStoreRepository @Inject constructor(@ApplicationContext private val co
         }
     }
 
-    //la función saveBackOnline() se utiliza para guardar el estado de disponibilidad de red
-    // de la aplicación (backOnline) en el almacenamiento de preferencias utilizando dataStore. Al utilizar la palabra clave suspend, se indica que esta función se puede llamar desde un contexto de suspensión, como una corutina.
+    /**
+     * Guarda el estado de disponibilidad de red en el DataStore.
+     */
     suspend fun saveBackOnline(backOnline: Boolean) {
         dataStore.edit { preferences ->
             preferences[PreferenceKeys.backOnline] = backOnline
@@ -71,7 +73,9 @@ class DataStoreRepository @Inject constructor(@ApplicationContext private val co
     }
 
 
-    //Se utiliza para recuperar los tipos de comida y dieta seleccionados por el usuario del DataStore de la aplicación.
+    /**
+     * Lee los tipos de comida y dieta seleccionados por el usuario del DataStore.
+     */
     val readMealAndDietType: Flow<MealAndDietType> = dataStore.data
         .catch { exception ->
             if (exception is IOException) {
@@ -96,7 +100,9 @@ class DataStoreRepository @Inject constructor(@ApplicationContext private val co
             )
         }
 
-    //la variable readBackOnline es un Flow que se utiliza para leer el estado de disponibilidad de red guardado en dataStore. Si no se ha guardado ningún valor, se devuelve false.
+    /**
+     * Lee el estado de disponibilidad de red del DataStore.
+     */
     val readBackOnline: Flow<Boolean> = dataStore.data
         .catch { exception ->
             if (exception is IOException) {
@@ -112,7 +118,9 @@ class DataStoreRepository @Inject constructor(@ApplicationContext private val co
 
 }
 
-//Define un modelo de datos para los tipos de comida y dieta seleccionados por el usuario en la aplicación.
+/**
+ * Modelo de datos para los tipos de comida y dieta seleccionados por el usuario en la aplicación.
+ */
 data class MealAndDietType(
     val selectedMealType: String,
     val selectedMealTypeId: Int,

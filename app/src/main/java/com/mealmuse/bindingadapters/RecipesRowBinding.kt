@@ -13,13 +13,20 @@ import com.mealmuse.R
 import com.mealmuse.ui.fragments.recipes.RecipesFragmentDirections
 import org.jsoup.Jsoup
 
+/**
+ * Clase de enlace para elementos de fila de recetas.
+ */
 class RecipesRowBinding {
 
-    //we need to add a companion object so we can access the functions inside this companion object
-    //in the project.
 
     companion object {
 
+        /**
+         * Método de enlace para el evento de clic en una receta.
+         *
+         * @param recipeRowLayout    El diseño de la fila de la receta en el que se realizará el clic.
+         * @param result             El objeto de resultado de la receta.
+         */
         @BindingAdapter("onRecipeClickListener")
         @JvmStatic
         fun onRecipeClickListener(recipeRowLayout: ConstraintLayout, result: com.mealmuse.models.Result) {
@@ -34,11 +41,15 @@ class RecipesRowBinding {
             }
         }
 
+        /**
+         * Método de enlace para cargar una imagen desde una URL en un ImageView.
+         *
+         * @param imageView    El ImageView en el que se cargará la imagen.
+         * @param imageUrl     La URL de la imagen.
+         */
         @BindingAdapter("loadImageFromUrl")
         @JvmStatic
         fun loadImageFromUrl(imageView: ImageView, imageUrl: String) {
-            //when the image is loading or when it is loaded, it will have a fade in animation
-            //of six hundred milliseconds and we will see that effect when we actually start fetching some API data.
             imageView.load(imageUrl) {
                 crossfade(600)
                 error(R.drawable.ic_error_placeholder)
@@ -46,11 +57,14 @@ class RecipesRowBinding {
         }
 
 
+        /**
+         * Método de enlace para aplicar el color vegano a una vista.
+         *
+         * @param view    La vista a la que se aplicará el color vegano.
+         * @param vegan   Booleano que indica si es vegano o no.
+         */
         @BindingAdapter("applyVeganColor")
         @JvmStatic
-        //first parameter will be a view and we are adding a view because we're going to use this
-        //one both TextView and image view.
-        //And the second parameter will be a boolean value so we can offer type boolean.
         fun applyVeganColor(view: View, vegan: Boolean) {
             if(vegan){
                 when(view){
@@ -74,6 +88,12 @@ class RecipesRowBinding {
             }
         }
 
+        /**
+         * Método de enlace para analizar y mostrar texto HTML en un TextView.
+         *
+         * @param textView      El TextView en el que se mostrará el texto.
+         * @param description   El texto en formato HTML a analizar y mostrar.
+         */
         @BindingAdapter("parseHtml")
         @JvmStatic
         fun parseHtml(textView: TextView, description: String?){

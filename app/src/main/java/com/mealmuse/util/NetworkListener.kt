@@ -7,13 +7,22 @@ import android.net.NetworkCapabilities
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 
+/**
+ * Clase NetworkListener que implementa ConnectivityManager.NetworkCallback().
+ * Esta clase se utiliza para verificar la disponibilidad de la red y notificar a los observadores de los cambios en la conectividad de red.
+ */
 @ExperimentalCoroutinesApi
 class NetworkListener : ConnectivityManager.NetworkCallback() {
 
     //MutableStateFlow es una clase de Kotlin que proporciona una forma de representar un valor que puede cambiar con el tiempo y notificar a los observadores de los cambios.
     private val isNetworkAvailable = MutableStateFlow(false)
 
-    //Este código es una función que verifica la disponibilidad de la red y devuelve un MutableStateFlow<Boolean> que representa el estado actual de la conexión de red.
+    /**
+     * Verifica la disponibilidad de la red y devuelve un MutableStateFlow<Boolean> que representa el estado actual de la conexión de red.
+     *
+     * @param context El contexto utilizado para obtener el servicio ConnectivityManager.
+     * @return El MutableStateFlow<Boolean> que representa el estado actual de la conexión de red.
+     */
     fun checkNetworkAvailability(context: Context): MutableStateFlow<Boolean> {
         val connectivityManager =
             //La función toma un objeto Context como argumento y utiliza el servicio ConnectivityManager para obtener información sobre el estado de la red.
@@ -52,12 +61,20 @@ class NetworkListener : ConnectivityManager.NetworkCallback() {
         }
     }
 
-    //esta función  se basa en la conectividad de la red, y cuando una red está disponible, se llama a esta función para actualizar el estado de la isNetworkAvailablevariable.
+    /**
+     * Se llama cuando una red está disponible y actualiza el estado de la isNetworkAvailable variable a true.
+     *
+     * @param network La red disponible.
+     */
     override fun onAvailable(network: Network) {
         isNetworkAvailable.value = true
     }
 
-    //Para responder a los cambios en la conectividad de la red y ajustar el comportamiento de la aplicación en consecuencia.
+    /**
+     * Se llama cuando se pierde una red y actualiza el estado de la isNetworkAvailable variable a false.
+     *
+     * @param network La red perdida.
+     */
     override fun onLost(network: Network) {
         isNetworkAvailable.value = false
     }

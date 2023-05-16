@@ -4,6 +4,11 @@ import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
 import kotlinx.android.parcel.Parcelize
 
+
+/**
+ * La clase ExtendedIngredient representa un ingrediente extendido de una receta.
+ * Implementa la interfaz Parcelable para permitir el paso de objetos entre componentes de la aplicación.
+ */
 @Parcelize
 data class ExtendedIngredient(
     @SerializedName("amount")
